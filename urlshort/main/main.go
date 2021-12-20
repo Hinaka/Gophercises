@@ -9,7 +9,8 @@ import (
 )
 
 func main() {
-	yamlFilename := flag.String("yaml", "", "a yaml file that contains shortened URL and its original Path")
+	yamlFilename := flag.String("yaml", "", "a yaml file that contains shortened Path and its original URL")
+	jsonFilename := flag.String("json", "", "a json file that contains shortened Path and its original URL")
 	flag.Parse()
 
 	mux := defaultMux()
@@ -22,13 +23,27 @@ func main() {
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
 
 	if *yamlFilename != "" {
-		file, err := os.ReadFile(*yamlFilename)
+		yamlData, err := os.ReadFile(*yamlFilename)
 		if err != nil {
-			exit(fmt.Sprintf("Failed to read yaml file: %s\n", *yamlFilename))
+			exit(fmt.Sprintf("Failed to read file: %s\n", *yamlFilename))
 		}
-		yamlHandler, err := urlshort.YAMLHandler(file, mapHandler)
+		yamlHandler, err := urlshort.YAMLHandler(yamlData, mapHandler)
+		if err != nil {
+			panic(err)
+		}
 		fmt.Println("Starting the server on :8080")
 		http.ListenAndServe(":8080", yamlHandler)
+	} else if *jsonFilename != "" {
+		jsonData, err := os.ReadFile(*jsonFilename)
+		if err != nil {
+			exit(fmt.Sprintf("Failed to read file: %s\n", *yamlFilename))
+		}
+		jsonHandler, err := urlshort.JSONHandler(jsonData, mapHandler)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Starting the server on :8080")
+		http.ListenAndServe(":8080", jsonHandler)
 	}
 }
 
