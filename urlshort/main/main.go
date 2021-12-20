@@ -23,10 +23,7 @@ func main() {
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
 
 	if *yamlFilename != "" {
-		yamlData, err := os.ReadFile(*yamlFilename)
-		if err != nil {
-			exit(fmt.Sprintf("Failed to read file: %s\n", *yamlFilename))
-		}
+		yamlData := readFile(*yamlFilename)
 		yamlHandler, err := urlshort.YAMLHandler(yamlData, mapHandler)
 		if err != nil {
 			panic(err)
@@ -34,10 +31,7 @@ func main() {
 		fmt.Println("Starting the server on :8080")
 		http.ListenAndServe(":8080", yamlHandler)
 	} else if *jsonFilename != "" {
-		jsonData, err := os.ReadFile(*jsonFilename)
-		if err != nil {
-			exit(fmt.Sprintf("Failed to read file: %s\n", *yamlFilename))
-		}
+		jsonData := readFile(*jsonFilename)
 		jsonHandler, err := urlshort.JSONHandler(jsonData, mapHandler)
 		if err != nil {
 			panic(err)
@@ -55,6 +49,14 @@ func defaultMux() *http.ServeMux {
 
 func hello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello, world!")
+}
+
+func readFile(filename string) []byte {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		exit(fmt.Sprintf("Failed to read file: %s\n", filename))
+	}
+	return data
 }
 
 func exit(msg string) {
