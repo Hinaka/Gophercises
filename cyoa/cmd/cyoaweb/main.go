@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/hinaka/gophercises/cyoa"
@@ -18,10 +17,6 @@ func main() {
 		panic(err)
 	}
 
-	d := json.NewDecoder(f)
-	var story cyoa.Story
-	if err := d.Decode(&story); err != nil {
-		panic(err)
-	}
+	story, err := cyoa.JsonStory(f)
 	fmt.Printf("%+v\n", story)
 }
