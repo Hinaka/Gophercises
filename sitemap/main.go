@@ -1,14 +1,27 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"github.com/hinaka/gophercises/link"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 )
+
+const xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9"
+
+type loc struct {
+	Value string `xml:"loc"`
+}
+
+type urlset struct {
+	Urls  []loc  `xml:"url"`
+	Xmlns string `xml:"xmlns,attr"`
+}
 
 func main() {
 	urlFlag := flag.String("url", "https://hinaka.dev", "the url you want to build a sitemap for")
@@ -16,8 +29,17 @@ func main() {
 	flag.Parse()
 
 	pages := bfs(*urlFlag, *maxDepth)
+	toXml := urlset{
+		Xmlns: xmlns,
+	}
 	for _, page := range pages {
-		fmt.Println(page)
+		toXml.Urls = append(toXml.Urls, loc{page})
+	}
+	fmt.Print(xml.Header)
+	enc := xml.NewEncoder(os.Stdout)
+	enc.Indent("", "  ")
+	if err := enc.Encode(toXml); err != nil {
+		panic(err)
 	}
 }
 
