@@ -1,9 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func main() {
 	var input string
 	fmt.Scanf("%s\n", &input)
-	fmt.Println("Input is ", input)
+	answer := 1
+	for _, ch:= range input {
+		str := string(ch)
+		if str == strings.ToUpper(str) {
+			answer++
+		}
+	}
+	fmt.Println(answer)
 }
