@@ -17,21 +17,22 @@ const (
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s sslmode=disable", host, port, user)
 	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-	err = resetDB(db, dbname)
-	if err != nil {
-		panic(err)
-	}
+	must(err)
+	must(resetDB(db, dbname))
 	db.Close()
 
 	psqlInfo = fmt.Sprintf("%s dbname=%s", psqlInfo, dbname)
 	db, err = sql.Open("postgres", psqlInfo)
+	must(err)
+	defer db.Close()
+
+	must(createPhoneNumbersTable(db))
+}
+
+func must(err error) {
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
 }
 
 func resetDB(db *sql.DB, name string) error {
@@ -48,6 +49,16 @@ func createDB(db *sql.DB, name string) error {
 		return err
 	}
 	return nil
+}
+
+func createPhoneNumbersTable(db *sql.DB) error {
+	statement := `
+		CREATE TABLE IF NOT EXISTS phone_numbers (
+			id SERIAL,
+			value VARCHAR(255)
+		)`
+	_, err := db.Exec(statement)
+	return err
 }
 
 func normalize(phone string) string {
