@@ -16,18 +16,32 @@ const (
 
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s sslmode=disable", host, port, user)
-	//db, err := sql.Open("postgres", psqlInfo)
-	//must(err)
-	//must(resetDB(db, dbname))
-	//db.Close()
+	db, err := sql.Open("postgres", psqlInfo)
+	must(err)
+	must(resetDB(db, dbname))
+	db.Close()
 
 	psqlInfo = fmt.Sprintf("%s dbname=%s", psqlInfo, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err = sql.Open("postgres", psqlInfo)
 	must(err)
 	defer db.Close()
 
 	must(createPhoneNumbersTable(db))
 	_, err = insertPhone(db, "1234567890")
+	must(err)
+	_, err = insertPhone(db, "123 456 7891")
+	must(err)
+	_, err = insertPhone(db, "(123) 456 7892")
+	must(err)
+	_, err = insertPhone(db, "(123) 456-7893")
+	must(err)
+	_, err = insertPhone(db, "123-456-7894")
+	must(err)
+	_, err = insertPhone(db, "123-456-7890")
+	must(err)
+	_, err = insertPhone(db, "1234567892")
+	must(err)
+	_, err = insertPhone(db, "(123)456-7892")
 	must(err)
 }
 
