@@ -41,8 +41,12 @@ func main() {
 	must(err)
 	_, err = insertPhone(db, "1234567892")
 	must(err)
-	_, err = insertPhone(db, "(123)456-7892")
+	id, err := insertPhone(db, "(123)456-7892")
 	must(err)
+
+	number, err := getPhone(db, id)
+	must(err)
+	fmt.Println("Number is...", number)
 }
 
 func must(err error) {
@@ -65,6 +69,15 @@ func createDB(db *sql.DB, name string) error {
 		return err
 	}
 	return nil
+}
+
+func getPhone(db *sql.DB, id int) (string, error) {
+	var number string
+	err := db.QueryRow("SELECT value FROM phone_numbers WHERE id=$1", id).Scan(&number)
+	if err != nil {
+		return "", err
+	}
+	return number, nil
 }
 
 func insertPhone(db *sql.DB, phone string) (int, error) {
